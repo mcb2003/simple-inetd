@@ -47,7 +47,6 @@ inetdent_t *inetd_conf_parse(const char *fname);
 #define PARSE_WAIT 3
 #define PARSE_USER 4
 #define PARSE_COMMAND 5
-#define PARSE_ARGS 6
 
 // Parse a single inetd entry
 inetdent_t *inetdent_parse(char *line);

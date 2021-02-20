@@ -65,7 +65,6 @@ inetdent_t *inetdent_parse(char *line) {
     switch (state) {
     case PARSE_SERVICE:
       serv = tok;
-      printf("Service name: %s\n", serv);
       break;
     case PARSE_STYLE:
       if (strcoll(tok, "stream") == 0)
@@ -77,7 +76,6 @@ inetdent_t *inetdent_parse(char *line) {
         free(ent);
         return NULL;
       }
-      printf("Socket style: %d\n", ent->style);
       break;
     case PARSE_PROTO:
       proto = getprotobyname(tok);
@@ -87,7 +85,6 @@ inetdent_t *inetdent_parse(char *line) {
         return NULL;
       }
       memcpy(&ent->proto, proto, sizeof(struct protoent));
-      printf("Protocol: %s\n", ent->proto.p_name);
 
       // Also retrieve the service info now we have the protocol string
       service = getservbyname(serv, tok);
@@ -97,7 +94,6 @@ inetdent_t *inetdent_parse(char *line) {
         return NULL;
       }
       memcpy(&ent->serv, service, sizeof(struct servent));
-      printf("Service: %s\n", ent->serv.s_name);
       break;
     case PARSE_WAIT:
       if (strcoll(tok, "nowait") == 0)
@@ -109,7 +105,6 @@ inetdent_t *inetdent_parse(char *line) {
         free(ent);
         return NULL;
       }
-      printf("Wait: %d\n", ent->wait);
       break;
     case PARSE_USER:
       // Try to get the user from the passwd db
@@ -120,18 +115,15 @@ inetdent_t *inetdent_parse(char *line) {
         return NULL;
       }
       ent->user = user->pw_uid;
-      printf("User: %d (%s)\n", ent->user, tok);
       break;
     case PARSE_COMMAND:
       ent->command = tok;
-      printf("Command: %s\n", ent->command);
 
       // Also parse the arguments, as we don't want to tokenise them
       ent->args = rawmemchr(tok, '\0') + 1;
       // Stop at the next '\n'
       // Is it safe to assume there *will* be another '\n' in `ent->args`?
       *((char *)rawmemchr(ent->args, '\n')) = '\0';
-      printf("Arguments: %s\n", ent->args);
       goto end; // Done!
     }
     ++state;
