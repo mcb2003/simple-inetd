@@ -13,6 +13,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
   inetdent_t *tail = NULL;
   FILE *fp = fopen(fname, "r");
   ssize_t result = 0;
+  int lineno = 0;
   while (result >= 0) {
     char *line = NULL;
     size_t line_size = 0;
@@ -23,8 +24,18 @@ inetdent_t *inetd_conf_parse(const char *fname) {
     } else if (result < 0)
       break; // EOF
 
+    // Increment line number
+    ++lineno;
+
     // Parse this line
     inetdent_t *ent = inetdent_parse(line);
+    if (!ent) {
+      // Parsing failed
+      fprintf(stderr, "Warning: Failed to parse line %d of %s (skipping)\n",
+              lineno, fname);
+      continue;
+    }
+    // Insert `ent` into the list
     if (tail) {
       tail->next = ent;
       tail = ent;
