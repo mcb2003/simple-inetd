@@ -40,6 +40,15 @@ typedef struct inetdent {
 // Parse the entire inetd.conf file
 inetdent_t *inetd_conf_parse(const char *fname);
 
+// Represents the state of construction of an `inetdent_t`
+#define PARSE_SERVICE 0
+#define PARSE_STYLE 1
+#define PARSE_PROTO 2
+#define PARSE_WAIT 3
+#define PARSE_USER 4
+#define PARSE_COMMAND 5
+#define PARSE_ARGS 6
+
 // Parse a single inetd entry
 inetdent_t *inetdent_parse(char *line);
 
