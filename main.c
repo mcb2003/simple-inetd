@@ -24,7 +24,7 @@
 
 #include "inetdent.h"
 
-char *G_PROG_NAME = "inetd";
+const char *G_PROG_NAME = "inetd";
 
 int main(int argc, char *argv[]) {
   if (argc >= 1)
