@@ -1,9 +1,13 @@
 #define _POSIX_C_SOURCE 200809L
+// For rawmemchr
+#define _GNU_SOURCE
 
 #include <errno.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "inetdent.h"
 #include "util.h"
@@ -50,7 +54,88 @@ inetdent_t *inetd_conf_parse(const char *fname) {
 
 inetdent_t *inetdent_parse(char *line) {
   inetdent_t *ent = xmalloc(sizeof(inetdent_t));
-  for (char *tok = strtok(line, DELIMS); tok; tok = strtok(NULL, DELIMS))
-    printf("%s\n", tok);
+  int state = PARSE_SERVICE;
+
+  // Service name (required because getservbyname requires the protocol as well)
+  const char *serv = NULL;
+  struct servent *service;
+  struct protoent *proto;
+  struct passwd *user;
+  for (char *tok = strtok(line, DELIMS); tok; tok = strtok(NULL, DELIMS)) {
+    switch (state) {
+    case PARSE_SERVICE:
+      serv = tok;
+      printf("Service name: %s\n", serv);
+      break;
+    case PARSE_STYLE:
+      if (strcoll(tok, "stream") == 0)
+        ent->style = SOCK_STREAM;
+      else if (strcoll(tok, "dgram") == 0)
+        ent->style = SOCK_DGRAM;
+      else {
+        // Invalid
+        free(ent);
+        return NULL;
+      }
+      printf("Socket style: %d\n", ent->style);
+      break;
+    case PARSE_PROTO:
+      proto = getprotobyname(tok);
+      if (!proto) {
+        // Protocol not found
+        free(ent);
+        return NULL;
+      }
+      memcpy(&ent->proto, proto, sizeof(struct protoent));
+      printf("Protocol: %s\n", ent->proto.p_name);
+
+      // Also retrieve the service info now we have the protocol string
+      service = getservbyname(serv, tok);
+      if (!service) {
+        // Service not known
+        free(ent);
+        return NULL;
+      }
+      memcpy(&ent->serv, service, sizeof(struct servent));
+      printf("Service: %s\n", ent->serv.s_name);
+      break;
+    case PARSE_WAIT:
+      if (strcoll(tok, "nowait") == 0)
+        ent->wait = 0;
+      else if (strcoll(tok, "wait") == 0)
+        ent->wait = 1;
+      else {
+        // Invalid value
+        free(ent);
+        return NULL;
+      }
+      printf("Wait: %d\n", ent->wait);
+      break;
+    case PARSE_USER:
+      // Try to get the user from the passwd db
+      user = getpwnam(tok);
+      if (!user) {
+        // User doesn't exist
+        free(ent);
+        return NULL;
+      }
+      ent->user = user->pw_uid;
+      printf("User: %d (%s)\n", ent->user, tok);
+      break;
+    case PARSE_COMMAND:
+      ent->command = tok;
+      printf("Command: %s\n", ent->command);
+
+      // Also parse the arguments, as we don't want to tokenise them
+      ent->args = rawmemchr(tok, '\0') + 1;
+      // Stop at the next '\n'
+      // Is it safe to assume there *will* be another '\n' in `ent->args`?
+      *((char *)rawmemchr(ent->args, '\n')) = '\0';
+      printf("Arguments: %s\n", ent->args);
+      goto end; // Done!
+    }
+    ++state;
+  }
+end:
   return ent;
 }
