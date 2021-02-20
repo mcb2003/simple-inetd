@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 
-struct inetdent {
+typedef struct inetdent {
   struct inetdent *next;
   struct servent serv;
   int style;
@@ -33,8 +33,8 @@ struct inetdent {
   uid_t user;
   char *command;
   char *args;
-};
+} inetdent_t;
 
-struct inetdent *inetd_conf_parse(const char *fname);
+inetdent_t *inetd_conf_parse(const char *fname);
 
 #endif

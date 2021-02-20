@@ -6,7 +6,7 @@
 
 #include "inetdent.h"
 
-struct inetdent *inetd_conf_parse(const char *fname) {
+inetdent_t *inetd_conf_parse(const char *fname) {
   FILE *fp = fopen(fname, "r");
   ssize_t result = 0;
   while (result >= 0) {
