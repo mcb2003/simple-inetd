@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 
+#define DELIMS " \t\n\v"
+
 typedef struct inetdent {
   struct inetdent *next;
   struct servent serv;
@@ -35,6 +37,10 @@ typedef struct inetdent {
   char *args;
 } inetdent_t;
 
+// Parse the entire inetd.conf file
 inetdent_t *inetd_conf_parse(const char *fname);
+
+// Parse a single inetd entry
+inetdent_t *inetdent_parse(char *line);
 
 #endif
