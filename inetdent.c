@@ -37,6 +37,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
       // Parsing failed
       fprintf(stderr, "Warning: Failed to parse line %d of %s (skipping)\n",
               lineno, fname);
+      free(line);
       continue;
     }
     // Insert `ent` into the list
