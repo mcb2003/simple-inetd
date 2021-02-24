@@ -78,6 +78,7 @@ inetdent_t *inetdent_parse(char *line) {
   inetdent_t *ent = xmalloc(sizeof(inetdent_t));
   // Insure `ent->next` is NULL so we don't segfault
   ent->next = NULL;
+
   int state = PARSE_SERVICE; // Initial state
 
   // Service name (required because getservbyname requires the protocol as well)
@@ -109,7 +110,8 @@ inetdent_t *inetdent_parse(char *line) {
         free(ent);
         return NULL;
       }
-      memcpy(&ent->proto, proto, sizeof(struct protoent));
+      // Save the protocol number
+      ent->proto = proto->p_proto;
 
       // Also retrieve the service info now we have the protocol string
       service = getservbyname(serv, tok);
@@ -118,7 +120,8 @@ inetdent_t *inetdent_parse(char *line) {
         free(ent);
         return NULL;
       }
-      memcpy(&ent->serv, service, sizeof(struct servent));
+      // Save the port number
+      ent->port = service->s_port;
       break;
     case PARSE_WAIT:
       if (strcoll(tok, "nowait") == 0)
@@ -167,6 +170,10 @@ int print_inetdent_info(const struct printf_info *info, size_t n, int *argtypes,
 
 int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args) {
            const inetdent_t *ent = *((const inetdent_t **) (args[0]));
+           // Protocol
+struct protoent *proto = getprotobynumber(ent->proto);
+// Service
+struct servent *serv = getservbyport(ent->port, proto->p_name);
            // Communication style
            const char *style = "unknown";
            switch(ent->style) {
@@ -175,5 +182,5 @@ int print_inetdent(FILE *stream, const struct printf_info *info, const void *con
            }
            // Retrieve the user info
            struct passwd *pw = getpwuid(ent->user);
-    return fprintf(stream, "%s\t%s\t%s\t%s\t%s\t%s\t%s", ent->serv.s_name, style, ent->proto.p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args);
+    return fprintf(stream, "%s\t%s\t%s\t%s\t%s\t%s\t%s", serv->s_name, style, proto->p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args);
 }

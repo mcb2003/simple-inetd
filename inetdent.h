@@ -29,9 +29,9 @@
 
 typedef struct inetdent {
   struct inetdent *next;
-  struct servent serv;
+    int port;
   int style;
-  struct protoent proto;
+  int proto;
   bool wait;
   uid_t user;
   char *command;
