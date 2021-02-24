@@ -6,7 +6,7 @@ OBJECTS = ${SOURCES:.c=.o}
 	HEADERS = $(wildcard *.h)
 BINARY = $(shell basename "${PWD}")
 
-.PHONY: all release clean
+.PHONY: all release clean fmt
 
 all: CFLAGS += -DDEBUG -O0 -g
 all: ${BINARY}
@@ -20,5 +20,8 @@ ${BINARY}: ${OBJECTS}
 
 clean:
 	${RM} ${BINARY} ${OBJECTS} ${DEPS}
+
+fmt: ${SOURCES} ${HEADERS}
+	clang-format -i $^
 
 -include ${DEPS}
