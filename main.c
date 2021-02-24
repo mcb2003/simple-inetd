@@ -34,10 +34,10 @@ int main(int argc, char *argv[]) {
   register_printf_specifier('N', print_inetdent, print_inetdent_arginfo);
 
   // Parse config file
-    inetdent_t *head = inetd_conf_parse("inetd.conf");
-    // Print parsed entries
-    for(inetdent_t *ent = head; ent; ent = ent->next) {
-        printf("%N\n", ent);
-    }
+  inetdent_t *head = inetd_conf_parse("inetd.conf");
+  // Print parsed entries
+  for (inetdent_t *ent = head; ent; ent = ent->next) {
+    printf("%N\n", ent);
+  }
   return 0;
 }

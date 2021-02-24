@@ -29,7 +29,7 @@
 
 typedef struct inetdent {
   struct inetdent *next;
-    int port;
+  int port;
   int style;
   int proto;
   bool wait;
@@ -53,7 +53,9 @@ inetdent_t *inetd_conf_parse(const char *fname);
 inetdent_t *inetdent_parse(char *line);
 
 // Functions used with `register_printf_function` from printf.h
-int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args);
-int print_inetdent_arginfo(const struct printf_info *info, size_t n, int *argtypes, int *size);
+int print_inetdent(FILE *stream, const struct printf_info *info,
+                   const void *const *args);
+int print_inetdent_arginfo(const struct printf_info *info, size_t n,
+                           int *argtypes, int *size);
 
 #endif

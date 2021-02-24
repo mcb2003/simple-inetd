@@ -81,7 +81,8 @@ inetdent_t *inetdent_parse(char *line) {
 
   int state = PARSE_SERVICE; // Initial state
 
-  // Service name (required because getservbyname requires the protocol as well)
+  // Service name (required because getservbyname requires the protocol as
+  // well)
   const char *serv = NULL;
   struct servent *service;
   struct protoent *proto;
@@ -89,7 +90,7 @@ inetdent_t *inetdent_parse(char *line) {
   for (char *tok = strtok(line, DELIMS); tok; tok = strtok(NULL, DELIMS)) {
     switch (state) {
     case PARSE_SERVICE:
-        // Save the name for lookup when we later have the protocol name
+      // Save the name for lookup when we later have the protocol name
       serv = tok;
       break;
     case PARSE_STYLE:
@@ -160,37 +161,42 @@ end:
   return ent;
 }
 
-int print_inetdent_arginfo(const struct printf_info *info, size_t n, int *argtypes, int *size) {
-    UNUSED(info);
-    if(n > 0) {
-        argtypes[0] = PA_POINTER;
-        // I searched everywhere, is this correct?
-        *size = sizeof(void*);
-    }
-    return 1;
+int print_inetdent_arginfo(const struct printf_info *info, size_t n,
+                           int *argtypes, int *size) {
+  UNUSED(info);
+  if (n > 0) {
+    argtypes[0] = PA_POINTER;
+    // I searched everywhere, is this correct?
+    *size = sizeof(void *);
+  }
+  return 1;
 }
 
-int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args) {
-           const inetdent_t *ent = *((const inetdent_t **) (args[0]));
-           // Protocol
-struct protoent *proto = getprotobynumber(ent->proto);
-// Service
-struct servent *serv = getservbyport(ent->port, proto->p_name);
-           // Communication style
-           const char *style = "unknown";
-           switch(ent->style) {
-               case SOCK_STREAM: style = "stream"; break;
-               case SOCK_DGRAM: style = "dgram";
-           }
-           // User
-           struct passwd *pw = getpwuid(ent->user);
-    char *buff;
-    if(asprintf(&buff, "%s\t%s\t%s\t%s\t%s\t%s\t%s",
-                serv->s_name, style, proto->p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args) < 0)
-        return -1;
-    int len = fprintf(stream, "%*s",
-            info-> left ? -info->width: info->width,
-            buff);
-    free(buff);
-    return len;
+int print_inetdent(FILE *stream, const struct printf_info *info,
+                   const void *const *args) {
+  const inetdent_t *ent = *((const inetdent_t **)(args[0]));
+  // Protocol
+  struct protoent *proto = getprotobynumber(ent->proto);
+  // Service
+  struct servent *serv = getservbyport(ent->port, proto->p_name);
+  // Communication style
+  const char *style = "unknown";
+  switch (ent->style) {
+  case SOCK_STREAM:
+    style = "stream";
+    break;
+  case SOCK_DGRAM:
+    style = "dgram";
+  }
+  // User
+  struct passwd *pw = getpwuid(ent->user);
+  char *buff;
+  if (asprintf(&buff, "%s\t%s\t%s\t%s\t%s\t%s\t%s", serv->s_name, style,
+               proto->p_name, ent->wait ? "wait" : "nowait", pw->pw_name,
+               ent->command, ent->args) < 0)
+    return -1;
+  int len =
+      fprintf(stream, "%*s", info->left ? -info->width : info->width, buff);
+  free(buff);
+  return len;
 }
