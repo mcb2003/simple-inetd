@@ -161,8 +161,10 @@ end:
 }
 
 int print_inetdent_arginfo(const struct printf_info *info, size_t n, int *argtypes, int *size) {
+    UNUSED(info);
     if(n > 0) {
         argtypes[0] = PA_POINTER;
+        // I searched everywhere, is this correct?
         *size = sizeof(void*);
     }
     return 1;

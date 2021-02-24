@@ -22,6 +22,9 @@
 #define INETD_UTIL_H
 #define _POSIX_C_SOURCE 200809L
 
+// Suppress unused parameter warnings
+#define UNUSED(x) (void)(x)
+// Program name
 extern char *G_PROG_NAME;
 
 void *xmalloc(size_t size);
