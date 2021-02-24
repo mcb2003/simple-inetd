@@ -23,6 +23,7 @@
 #define _GNU_SOURCE
 
 #include <errno.h>
+#include <printf.h>
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -154,4 +155,17 @@ inetdent_t *inetdent_parse(char *line) {
   }
 end:
   return ent;
+}
+
+int print_inetdent_info(const struct printf_info *info, size_t n, int *argtypes, int *size) {
+    if(n > 0) {
+        argtypes[0] = PA_POINTER;
+        *size = sizeof(void*);
+    }
+    return 1;
+}
+
+int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args) {
+           const inetdent_t *ent = *((const inetdent_t **) (args[0]));
+    return fprintf(stream, "%p", ent);
 }

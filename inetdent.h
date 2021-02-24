@@ -21,6 +21,7 @@
 #ifndef INETD_ENT_H
 #define INETD_ENT_H
 #include <netdb.h>
+#include <printf.h>
 #include <stdbool.h>
 #include <sys/socket.h>
 
@@ -50,5 +51,9 @@ inetdent_t *inetd_conf_parse(const char *fname);
 
 // Parse a single inetd entry
 inetdent_t *inetdent_parse(char *line);
+
+// Functions used with `register_printf_function` from printf.h
+int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args);
+int print_inetdent_info(const struct printf_info *info, size_t n, int *argtypes, int *size);
 
 #endif

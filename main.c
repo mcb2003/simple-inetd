@@ -30,6 +30,11 @@ int main(int argc, char *argv[]) {
   if (argc >= 1)
     G_PROG_NAME = argv[0];
 
-  inetd_conf_parse("inetd.conf");
+  // Register a printf handler for inetd entries
+  register_printf_specifier('W', print_inetdent, print_inetdent_info);
+    inetdent_t *head = inetd_conf_parse("inetd.conf");
+    for(inetdent_t *ent = head; ent; ent = ent->next) {
+        printf("%W\n", ent);
+    }
   return 0;
 }
