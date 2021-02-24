@@ -1,3 +1,23 @@
+/*
+    inetd - The internet daemon
+    Copyright (C) 2021 Michael Connor Buchan
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+    email: <mikey@blindcomputing.org>
+*/
+
 #define _POSIX_C_SOURCE 200809L
 // For rawmemchr
 #define _GNU_SOURCE
@@ -17,7 +37,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
   inetdent_t *tail = NULL;
   FILE *fp = fopen(fname, "r");
   ssize_t result = 0;
-  int lineno = 0;
+  int lineno = 0; // For debug / errors
   while (result >= 0) {
     char *line = NULL;
     size_t line_size = 0;
@@ -55,7 +75,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
 
 inetdent_t *inetdent_parse(char *line) {
   inetdent_t *ent = xmalloc(sizeof(inetdent_t));
-  int state = PARSE_SERVICE;
+  int state = PARSE_SERVICE; // Initial state
 
   // Service name (required because getservbyname requires the protocol as well)
   const char *serv = NULL;
@@ -65,6 +85,7 @@ inetdent_t *inetdent_parse(char *line) {
   for (char *tok = strtok(line, DELIMS); tok; tok = strtok(NULL, DELIMS)) {
     switch (state) {
     case PARSE_SERVICE:
+        // Save the name for lookup when we later have the protocol name
       serv = tok;
       break;
     case PARSE_STYLE:
@@ -98,9 +119,9 @@ inetdent_t *inetdent_parse(char *line) {
       break;
     case PARSE_WAIT:
       if (strcoll(tok, "nowait") == 0)
-        ent->wait = 0;
+        ent->wait = false;
       else if (strcoll(tok, "wait") == 0)
-        ent->wait = 1;
+        ent->wait = true;
       else {
         // Invalid value
         free(ent);
