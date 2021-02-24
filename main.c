@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     G_PROG_NAME = argv[0];
 
   // Register a printf handler for inetd entries
-  register_printf_specifier('N', print_inetdent, print_inetdent_info);
+  register_printf_specifier('N', print_inetdent, print_inetdent_arginfo);
 
   // Parse config file
     inetdent_t *head = inetd_conf_parse("inetd.conf");

@@ -160,7 +160,7 @@ end:
   return ent;
 }
 
-int print_inetdent_info(const struct printf_info *info, size_t n, int *argtypes, int *size) {
+int print_inetdent_arginfo(const struct printf_info *info, size_t n, int *argtypes, int *size) {
     if(n > 0) {
         argtypes[0] = PA_POINTER;
         *size = sizeof(void*);
