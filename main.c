@@ -31,10 +31,13 @@ int main(int argc, char *argv[]) {
     G_PROG_NAME = argv[0];
 
   // Register a printf handler for inetd entries
-  register_printf_specifier('W', print_inetdent, print_inetdent_info);
+  register_printf_specifier('N', print_inetdent, print_inetdent_info);
+
+  // Parse config file
     inetdent_t *head = inetd_conf_parse("inetd.conf");
+    // Print parsed entries
     for(inetdent_t *ent = head; ent; ent = ent->next) {
-        printf("%W\n", ent);
+        printf("%N\n", ent);
     }
   return 0;
 }
