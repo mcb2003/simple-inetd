@@ -75,6 +75,8 @@ inetdent_t *inetd_conf_parse(const char *fname) {
 
 inetdent_t *inetdent_parse(char *line) {
   inetdent_t *ent = xmalloc(sizeof(inetdent_t));
+  // Insure `ent->next` is NULL so we don't segfault
+  ent->next = NULL;
   int state = PARSE_SERVICE; // Initial state
 
   // Service name (required because getservbyname requires the protocol as well)
