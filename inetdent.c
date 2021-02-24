@@ -180,7 +180,15 @@ struct servent *serv = getservbyport(ent->port, proto->p_name);
                case SOCK_STREAM: style = "stream"; break;
                case SOCK_DGRAM: style = "dgram";
            }
-           // Retrieve the user info
+           // User
            struct passwd *pw = getpwuid(ent->user);
-    return fprintf(stream, "%s\t%s\t%s\t%s\t%s\t%s\t%s", serv->s_name, style, proto->p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args);
+    char *buff;
+    if(asprintf(&buff, "%s\t%s\t%s\t%s\t%s\t%s\t%s",
+                serv->s_name, style, proto->p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args) < 0)
+        return -1;
+    int len = fprintf(stream, "%*s",
+            info-> left ? -info->width: info->width,
+            buff);
+    free(buff);
+    return len;
 }
