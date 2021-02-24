@@ -167,5 +167,13 @@ int print_inetdent_info(const struct printf_info *info, size_t n, int *argtypes,
 
 int print_inetdent(FILE *stream, const struct printf_info *info, const void *const *args) {
            const inetdent_t *ent = *((const inetdent_t **) (args[0]));
-    return fprintf(stream, "%p", ent);
+           // Communication style
+           const char *style = "unknown";
+           switch(ent->style) {
+               case SOCK_STREAM: style = "stream"; break;
+               case SOCK_DGRAM: style = "dgram";
+           }
+           // Retrieve the user info
+           struct passwd *pw = getpwuid(ent->user);
+    return fprintf(stream, "%s\t%s\t%s\t%s\t%s\t%s\t%s", ent->serv.s_name, style, ent->proto.p_name, ent->wait ? "wait": "nowait", pw->pw_name, ent->command, ent->args);
 }
