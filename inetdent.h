@@ -25,7 +25,7 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 
-#define DELIMS " \t\n\v"
+#define DELIMS " \f\n\r\t\v"
 
 typedef struct inetdent {
   struct inetdent *next;
