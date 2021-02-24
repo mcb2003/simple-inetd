@@ -37,6 +37,17 @@ inetdent_t *inetd_conf_parse(const char *fname) {
   inetdent_t *head = NULL;
   inetdent_t *tail = NULL;
   FILE *fp = fopen(fname, "r");
+  // Abort if the file couldn't be opened
+  if (!fp) {
+    char *err;
+    if (asprintf(&err, "%s: error: %s", G_PROG_NAME, fname) < 0) {
+      // We likely couldn't allocate memory
+      perror(G_PROG_NAME);
+      exit(EXIT_FAILURE);
+    }
+    perror(err);
+    exit(EXIT_FAILURE);
+  }
   ssize_t result = 0;
   int lineno = 0; // For debug / errors
   while (result >= 0) {
