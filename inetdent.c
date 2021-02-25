@@ -199,11 +199,21 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
   case SOCK_DGRAM:
     style = "dgram";
   }
+  // Wait?
+  const char *wait;
+  if (info->alt)
+    wait = ent->wait ? "wait" : "nowait";
+  else
+    wait = ent->wait ? "yes" : "no";
   // User
   struct passwd *pw = getpwuid(ent->user);
   char *buff;
-  if (asprintf(&buff, "%s\t%s\t%s\t%s\t%s\t%s\t%s", serv->s_name, style,
-               proto->p_name, ent->wait ? "wait" : "nowait", pw->pw_name,
+  if (asprintf(&buff,
+               info->alt ? "%s\t%s\t%s\t%s\t%s\t%s\t%s"
+                         : "inetd entry {\n\tservice:\t%s,\n\tstyle:\t"
+                           "%s,\n\tprotocol:\t%s\,\n\twait:\t%s,\n\tuser:\t"
+                           "%s,\n\tcommand:\t%s,\n\targuments:\t%s\n}",
+               serv->s_name, style, proto->p_name, wait, pw->pw_name,
                ent->command, ent->args) < 0)
     return -1;
   int len =
