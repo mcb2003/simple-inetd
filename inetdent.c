@@ -211,7 +211,7 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
   if (asprintf(&buff,
                info->alt ? "%s\t%s\t%s\t%s\t%s\t%s\t%s"
                          : "inetd entry {\n\tservice:\t%s,\n\tstyle:\t"
-                           "%s,\n\tprotocol:\t%s\,\n\twait:\t%s,\n\tuser:\t"
+                           "%s,\n\tprotocol:\t%s,\n\twait:\t%s,\n\tuser:\t"
                            "%s,\n\tcommand:\t%s,\n\targuments:\t%s\n}",
                serv->s_name, style, proto->p_name, wait, pw->pw_name,
                ent->command, ent->args) < 0)
