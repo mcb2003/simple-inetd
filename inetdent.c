@@ -165,8 +165,8 @@ inetdent_t *inetdent_parse(char *line) {
     case PARSE_ARGS:
       // First argument, beginning of argz vector
       argz = tok;
-      // Intensional fallthrough, we need to update `argz_size` and `nargs`
-      // anyway
+      // Falls through
+      // We need to increment `nargs` and adjust `argz_size` anyway
     default:
       argz_size += strlen(tok) + 1;
       ++nargs;
