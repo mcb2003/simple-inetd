@@ -27,8 +27,6 @@ void *xmalloc(size_t size) {
   void *ptr;
   if ((ptr = malloc(size)))
     return ptr;
-  else {
-    perror(G_PROG_NAME);
-    exit(EXIT_FAILURE);
-  }
+  perror(G_PROG_NAME);
+  exit(EXIT_FAILURE);
 }
