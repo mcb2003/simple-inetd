@@ -35,7 +35,7 @@ typedef struct inetdent {
   bool wait;
   uid_t user;
   char *command;
-  char *args;
+  char *argv[];
 } inetdent_t;
 
 // Parse the entire inetd.conf file
@@ -49,6 +49,7 @@ enum inetdent_parse_state {
   PARSE_WAIT,
   PARSE_USER,
   PARSE_COMMAND,
+  PARSE_ARGS,
 };
 
 // Parse a single inetd entry

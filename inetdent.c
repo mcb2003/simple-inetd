@@ -21,6 +21,7 @@
 // For rawmemchr
 #define _GNU_SOURCE
 
+#include <argz.h>
 #include <errno.h>
 #include <printf.h>
 #include <pwd.h>
@@ -76,6 +77,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
       tail->next = ent;
       tail = ent;
     } else {
+      // First entry in list
       head = ent;
       tail = ent;
     }
@@ -90,9 +92,11 @@ inetdent_t *inetdent_parse(char *line) {
   ent->next = NULL;
 
   enum inetdent_parse_state state = PARSE_SERVICE; // Initial state
+  size_t nargs = 0;                                // number of arguments
+  const char *argz;                                // Argz vector
+  size_t argz_size = 0;
 
-  // Service name (required because getservbyname requires the protocol as
-  // well)
+  // Service name (required because getservbyname requires the protocol
   const char *serv = NULL;
   struct servent *service;
   struct protoent *proto;
@@ -157,17 +161,24 @@ inetdent_t *inetdent_parse(char *line) {
       break;
     case PARSE_COMMAND:
       ent->command = tok;
-
-      // Also parse the arguments, as we don't want to tokenise them
-      ent->args = rawmemchr(tok, '\0') + 1;
-      // Stop at the next '\n'
-      // Is it safe to assume there *will* be another '\n' in `ent->args`?
-      *((char *)rawmemchr(ent->args, '\n')) = '\0';
-      goto end; // Done!
+      break;
+    case PARSE_ARGS:
+      // First argument, beginning of argz vector
+      argz = tok;
+      // Intensional fallthrough, we need to update `argz_size` and `nargs`
+      // anyway
+    default:
+      argz_size += strlen(tok) + 1;
+      ++nargs;
     }
     ++state;
   }
-end:
+  // Allocate enough space for the argv vector
+  size_t argv_size = (argz_count(argz, argz_size) + 1) * sizeof(char *);
+  ent = xrealloc(ent, sizeof(inetdent_t) + argv_size);
+  // Fill the argv vector
+  argz_extract(argz, argz_size, (char **restrict) & ent->argv);
+
   return ent;
 }
 
@@ -208,12 +219,12 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
   struct passwd *pw = getpwuid(ent->user);
   char *buff;
   if (asprintf(&buff,
-               info->alt ? "%s\t%s\t%s\t%s\t%s\t%s\t%s"
+               info->alt ? "%s\t%s\t%s\t%s\t%s\t%s"
                          : "inetd entry {\n\tservice:\t%s,\n\tstyle:\t"
                            "%s,\n\tprotocol:\t%s,\n\twait:\t%s,\n\tuser:\t"
-                           "%s,\n\tcommand:\t%s,\n\targuments:\t%s\n}",
+                           "%s,\n\tcommand:\t%s\n}",
                serv->s_name, style, proto->p_name, wait, pw->pw_name,
-               ent->command, ent->args) < 0)
+               ent->command) < 0)
     return -1;
   int len =
       fprintf(stream, "%*s", info->left ? -info->width : info->width, buff);
