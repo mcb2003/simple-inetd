@@ -30,3 +30,18 @@ void *xmalloc(size_t size) {
   perror(G_PROG_NAME);
   exit(EXIT_FAILURE);
 }
+
+void *xcalloc(size_t count, size_t eltsize) {
+  void *ptr;
+  if ((ptr = calloc(count, eltsize)))
+    return ptr;
+  perror(G_PROG_NAME);
+  exit(EXIT_FAILURE);
+}
+
+void *xrealloc(void *ptr, size_t newsize) {
+  if ((ptr = realloc(ptr, newsize)))
+    return ptr;
+  perror(G_PROG_NAME);
+  exit(EXIT_FAILURE);
+}
