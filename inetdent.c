@@ -18,7 +18,6 @@
     email: <mikey@blindcomputing.org>
 */
 
-#define _POSIX_C_SOURCE 200809L
 // For rawmemchr
 #define _GNU_SOURCE
 
@@ -50,7 +49,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
   }
   ssize_t result = 0;
   int lineno = 0; // For debug / errors
-  while (result >= 0) {
+  while (1) {
     char *line = NULL;
     size_t line_size = 0;
     result = getline(&line, &line_size, fp);

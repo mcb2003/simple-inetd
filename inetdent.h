@@ -54,7 +54,7 @@ enum inetdent_parse_state {
 // Parse a single inetd entry
 inetdent_t *inetdent_parse(char *line);
 
-// Functions used with `register_printf_function` from printf.h
+// Functions used with `register_printf_specifier` from printf.h
 int print_inetdent(FILE *stream, const struct printf_info *info,
                    const void *const *args);
 int print_inetdent_arginfo(const struct printf_info *info, size_t n,
