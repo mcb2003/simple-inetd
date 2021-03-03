@@ -92,7 +92,6 @@ inetdent_t *inetdent_parse(char *line) {
   ent->next = NULL;
 
   enum inetdent_parse_state state = PARSE_SERVICE; // Initial state
-  size_t nargs = 0;                                // number of arguments
   const char *argz;                                // Argz vector
   size_t argz_size = 0;
 
@@ -166,10 +165,9 @@ inetdent_t *inetdent_parse(char *line) {
       // First argument, beginning of argz vector
       argz = tok;
       // Falls through
-      // We need to increment `nargs` and adjust `argz_size` anyway
+      // We need to adjust `argz_size` anyway
     default:
       argz_size += strlen(tok) + 1;
-      ++nargs;
     }
     ++state;
   }
