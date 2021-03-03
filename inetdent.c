@@ -90,7 +90,7 @@ inetdent_t *inetdent_parse(char *line) {
   // Insure `ent->next` is NULL so we don't segfault
   ent->next = NULL;
 
-  int state = PARSE_SERVICE; // Initial state
+  enum inetdent_parse_state state = PARSE_SERVICE; // Initial state
 
   // Service name (required because getservbyname requires the protocol as
   // well)
