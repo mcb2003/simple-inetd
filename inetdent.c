@@ -215,14 +215,22 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
     wait = ent->wait ? "yes" : "no";
   // User
   struct passwd *pw = getpwuid(ent->user);
+  // Arguments
+  // Not sure why this cast is needed, it works anyway, gcc's just being fussy
+  // "Didn't you enable all warnings?"
+  // Shut up!
+  char *arguments = argv2str((const char *const *)ent->argv);
   char *buff;
-  if (asprintf(&buff,
-               info->alt ? "%s\t%s\t%s\t%s\t%s\t%s"
+  int success =
+      asprintf(&buff,
+               info->alt ? "%s\t%s\t%s\t%s\t%s\t%s\t%s"
                          : "inetd entry {\n\tservice:\t%s,\n\tstyle:\t"
                            "%s,\n\tprotocol:\t%s,\n\twait:\t%s,\n\tuser:\t"
-                           "%s,\n\tcommand:\t%s\n}",
+                           "%s,\n\tcommand:\t%s\n\targuments:\t%s\n}",
                serv->s_name, style, proto->p_name, wait, pw->pw_name,
-               ent->command) < 0)
+               ent->command, arguments);
+  free(arguments);
+  if (success < 0)
     return -1;
   int len =
       fprintf(stream, "%*s", info->left ? -info->width : info->width, buff);
