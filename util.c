@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "util.h"
 
@@ -44,4 +45,20 @@ void *xrealloc(void *ptr, size_t newsize) {
     return ptr;
   perror(G_PROG_NAME);
   exit(EXIT_FAILURE);
+}
+
+char *argv2str(const char *const argv[]) {
+  size_t old_len;
+  size_t len = 0;
+  char *buff = NULL;
+  for (size_t i = 0; argv[i]; ++i) {
+    size_t arg_len = strlen(argv[i]);
+    old_len = len;
+    len += arg_len + 1;
+    buff = xrealloc(buff, len);
+    memcpy(buff + old_len, argv[i], arg_len);
+    buff[len - 1] = ' ';
+  }
+  buff[len - 1] = '\0';
+  return buff;
 }

@@ -25,10 +25,14 @@
 // Suppress unused parameter warnings
 #define UNUSED(x) (void)(x)
 // Program name
-extern char *G_PROG_NAME;
+extern const char *G_PROG_NAME;
 
 void *xmalloc(size_t size);
 void *xcalloc(size_t count, size_t eltsize);
 void *xrealloc(void *ptr, size_t newsize);
+
+// Convert an argv style vector into a space separated string.
+// `argv` must en with a NULL pointer
+char *argv2str(const char *const argv[]);
 
 #endif
