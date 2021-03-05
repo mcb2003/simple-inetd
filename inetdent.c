@@ -171,6 +171,9 @@ inetdent_t *inetdent_parse(char *line) {
     }
     ++state;
   }
+  // Ensure the structure is complete
+  if (state <= PARSE_ARGS)
+    return NULL;
   // Allocate enough space for the argv vector
   size_t argv_size = (argz_count(argz, argz_size) + 1) * sizeof(char *);
   ent = xrealloc(ent, sizeof(inetdent_t) + argv_size);
