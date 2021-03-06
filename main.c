@@ -21,6 +21,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include "inetdent.h"
 
@@ -37,7 +38,9 @@ int main(int argc, char *argv[]) {
   inetdent_t *head = inetd_conf_parse("inetd.conf");
   // Print parsed entries
   for (inetdent_t *ent = head; ent; ent = ent->next) {
+    int sock = inetdent_socket(ent);
     printf("%N\n", ent);
+    close(sock);
   }
   return 0;
 }

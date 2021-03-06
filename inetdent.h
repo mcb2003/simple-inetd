@@ -26,6 +26,8 @@
 #include <sys/socket.h>
 
 #define DELIMS " \f\n\r\t\v"
+// Size of the queue of incoming, but yet to be accepted connections
+#define CONN_QUEUE_SIZE 32
 
 typedef struct inetdent {
   struct inetdent *next;
@@ -60,5 +62,8 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
                    const void *const *args);
 int print_inetdent_arginfo(const struct printf_info *info, size_t n,
                            int *argtypes, int *size);
+
+// Create and bind the server socket for an inetd entry
+int inetdent_socket(inetdent_t *ent);
 
 #endif

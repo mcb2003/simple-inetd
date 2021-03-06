@@ -240,3 +240,24 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
   free(buff);
   return len;
 }
+
+int inetdent_socket(inetdent_t *ent) {
+  int sock = socket(PF_INET, ent->style, ent->proto);
+  if (sock < 0) {
+    fprintf(stderr, "%s: Error: %s: socket: %s\n", G_PROG_NAME, ent->command,
+            strerror(errno));
+    return -1;
+  }
+  struct sockaddr_in name = {
+      .sin_family = AF_INET,
+      .sin_port = ent->port,
+      .sin_addr.s_addr = htonl(INADDR_ANY),
+  };
+  if (bind(sock, (struct sockaddr *)&name, sizeof(name)) < 0) {
+    fprintf(stderr, "%s: Error: bind: port %hd: %s\n", G_PROG_NAME,
+            ntohs(ent->port), strerror(errno));
+    return -1;
+  }
+
+  return sock;
+}
