@@ -18,7 +18,7 @@
     email: <mikey@blindcomputing.org>
 */
 
-// For rawmemchr
+// For rawmemchr and %m printf specifier
 #define _GNU_SOURCE
 
 #include <argz.h>
@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 
 #include "inetdent.h"
@@ -39,13 +40,7 @@ inetdent_t *inetd_conf_parse(const char *fname) {
   FILE *fp = fopen(fname, "r");
   // Abort if the file couldn't be opened
   if (!fp) {
-    char *err;
-    if (asprintf(&err, "%s: error: %s", G_PROG_NAME, fname) < 0) {
-      // We likely couldn't allocate memory
-      perror(G_PROG_NAME);
-      exit(EXIT_FAILURE);
-    }
-    perror(err);
+    fprintf(stderr, "%s: error: %s: %m\n", G_PROG_NAME, fname);
     exit(EXIT_FAILURE);
   }
   ssize_t result = 0;
@@ -244,8 +239,7 @@ int print_inetdent(FILE *stream, const struct printf_info *info,
 int inetdent_socket(inetdent_t *ent) {
   int sock = socket(PF_INET, ent->style, ent->proto);
   if (sock < 0) {
-    fprintf(stderr, "%s: Error: %s: socket: %s\n", G_PROG_NAME, ent->command,
-            strerror(errno));
+    fprintf(stderr, "%s: Error: %s: socket: %m\n", G_PROG_NAME, ent->command);
     return -1;
   }
   struct sockaddr_in name = {
@@ -256,6 +250,11 @@ int inetdent_socket(inetdent_t *ent) {
   if (bind(sock, (struct sockaddr *)&name, sizeof(name)) < 0) {
     fprintf(stderr, "%s: Error: bind: port %hd: %s\n", G_PROG_NAME,
             ntohs(ent->port), strerror(errno));
+    return -1;
+  }
+  // Listen for incoming connections
+  if (listen(sock, CONN_QUEUE_SIZE) < 0) {
+    perror("listen");
     return -1;
   }
 
